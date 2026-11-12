@@ -3,7 +3,7 @@
   "id": "backpackmod",
   "version": "${version}",
   "name": "Backpack Mod",
-  "description": "مود حقائب الظهر بخمسة مستويات وخانة ظهر مخصصة وترقيات خاصة",
+  "description": "مود حقائب الظهر وخانة الظهر والمطارق والفارمات السريعة",
   "authors": [
     "You"
   ],
@@ -24,8 +24,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.15.0",
-    "minecraft": "~1.20.1",
-    "java": ">=17",
-    "fabric-api": "*"
+    "minecraft": "*",
+    "java": ">=17"
   }
 }
