@@ -1,0 +1,7 @@
+{
+  "item.backpackmod.backpack": "Backpack",
+  "item.backpackmod.backpack.slots": "Used: %s / %s slots",
+  "item.backpackmod.backpack.desc": "Right-click to open storage",
+  "container.backpackmod.backpack": "Backpack"
+}
+
