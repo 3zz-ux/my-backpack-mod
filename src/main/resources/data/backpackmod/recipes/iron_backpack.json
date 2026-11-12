@@ -1,0 +1,21 @@
+{
+  "type": "backpackmod:backpack_upgrade",
+  "pattern": [
+    " I ",
+    "IBI",
+    " I "
+  ],
+  "key": {
+    "B": {
+      "item": "backpackmod:wooden_backpack"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "backpackmod:iron_backpack",
+    "count": 1
+  }
+}
+

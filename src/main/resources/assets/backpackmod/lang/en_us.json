@@ -1,7 +1,21 @@
 {
-  "item.backpackmod.backpack": "Backpack",
+  "item.backpackmod.wooden_backpack": "Wooden Backpack",
+  "item.backpackmod.wooden_backpack.tier": "Tier: Wooden (9 Slots)",
+  "item.backpackmod.iron_backpack": "Iron Backpack",
+  "item.backpackmod.iron_backpack.tier": "Tier: Iron (18 Slots)",
+  "item.backpackmod.golden_backpack": "Golden Backpack",
+  "item.backpackmod.golden_backpack.tier": "Tier: Golden (27 Slots)",
+  "item.backpackmod.diamond_backpack": "Diamond Backpack",
+  "item.backpackmod.diamond_backpack.tier": "Tier: Diamond (54 Slots)",
+  "item.backpackmod.netherite_backpack": "Netherite Backpack",
+  "item.backpackmod.netherite_backpack.tier": "Tier: Netherite (54 Slots)",
+  "item.backpackmod.fireproof.desc": "Immune to fire and lava!",
   "item.backpackmod.backpack.slots": "Used: %s / %s slots",
   "item.backpackmod.backpack.desc": "Right-click to open storage",
-  "container.backpackmod.backpack": "Backpack"
-}
 
+  "item.backpackmod.magnet_upgrade": "Magnet Upgrade",
+  "item.backpackmod.magnet_upgrade.desc": "Pulls nearby dropped items to you automatically (6 blocks)",
+  "item.backpackmod.autofeed_upgrade": "Auto-Feed Upgrade",
+  "item.backpackmod.autofeed_upgrade.desc": "Automatically feeds you from food stored inside the backpack",
+  "item.backpackmod.upgrade.how_to_use": "Keep inside your backpack to activate!"
+}

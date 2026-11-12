@@ -1,7 +1,21 @@
 {
-  "item.backpackmod.backpack": "حقيبة ظهر",
+  "item.backpackmod.wooden_backpack": "حقيبة خشبية",
+  "item.backpackmod.wooden_backpack.tier": "المستوى: خشبية (9 خانات)",
+  "item.backpackmod.iron_backpack": "حقيبة حديدية",
+  "item.backpackmod.iron_backpack.tier": "المستوى: حديدية (18 خانة)",
+  "item.backpackmod.golden_backpack": "حقيبة ذهبية",
+  "item.backpackmod.golden_backpack.tier": "المستوى: ذهبية (27 خانة)",
+  "item.backpackmod.diamond_backpack": "حقيبة ماسية",
+  "item.backpackmod.diamond_backpack.tier": "المستوى: ماسية (54 خانة)",
+  "item.backpackmod.netherite_backpack": "حقيبة نيذرلايت",
+  "item.backpackmod.netherite_backpack.tier": "المستوى: نيذرلايت (54 خانة)",
+  "item.backpackmod.fireproof.desc": "مقاومة للاحتراق في اللافا والنار!",
   "item.backpackmod.backpack.slots": "المستخدم: %s من أصل %s خانة",
   "item.backpackmod.backpack.desc": "اضغط كليك يمين لفتح الحقيبة",
-  "container.backpackmod.backpack": "حقيبة ظهر"
-}
 
+  "item.backpackmod.magnet_upgrade": "ترقية المغناطيس",
+  "item.backpackmod.magnet_upgrade.desc": "تسحب الموارد الساقطة في محيط 6 بلوكات تلقائياً إليك",
+  "item.backpackmod.autofeed_upgrade": "ترقية التغذية الذاتية",
+  "item.backpackmod.autofeed_upgrade.desc": "تطعمك تلقائياً من الأكل الموجود داخل الحقيبة إذا جعت",
+  "item.backpackmod.upgrade.how_to_use": "ضعها داخل حقيبتك لتفعيل الميزة!"
+}

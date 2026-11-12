@@ -3,7 +3,7 @@
   "id": "backpackmod",
   "version": "${version}",
   "name": "Backpack Mod",
-  "description": "حقيبة ظهر بسيطة تتسع للتخزين وتصنع بـ 4 خشب",
+  "description": "مود حقائب الظهر بخمسة مستويات وخانة ظهر مخصصة وترقيات خاصة",
   "authors": [
     "You"
   ],
@@ -14,8 +14,14 @@
   "entrypoints": {
     "main": [
       "com.backpackmod.BackpackMod"
+    ],
+    "client": [
+      "com.backpackmod.client.BackpackClientMod"
     ]
   },
+  "mixins": [
+    "backpackmod.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.15.0",
     "minecraft": "~1.20.1",
@@ -23,4 +29,3 @@
     "fabric-api": "*"
   }
 }
-

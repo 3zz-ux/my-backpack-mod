@@ -1,0 +1,21 @@
+{
+  "type": "backpackmod:backpack_upgrade",
+  "pattern": [
+    " D ",
+    "DBD",
+    " D "
+  ],
+  "key": {
+    "B": {
+      "item": "backpackmod:golden_backpack"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "item": "backpackmod:diamond_backpack",
+    "count": 1
+  }
+}
+

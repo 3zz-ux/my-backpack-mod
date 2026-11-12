@@ -1,10 +1,13 @@
 package com.backpackmod.item;
 
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -21,28 +24,36 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class BackpackItem extends Item {
-    // حجم التخزين: 54 خانة مثل الصندوق الكبير (Double Chest)
-    // إذا كنت تفضل صندوق صغير عادي، غير الرقم إلى 27 ونوع الشاشة إلى GENERIC_9X3 مع 3 صفوف
-    public static final int INVENTORY_SIZE = 54;
     private static final String NBT_KEY = "BackpackItems";
+    private final BackpackTier tier;
 
-    public BackpackItem(Settings settings) {
-        super(settings);
+    public BackpackItem(BackpackTier tier, Settings settings) {
+        super(tier.isFireproof() ? settings.fireproof() : settings);
+        this.tier = tier;
+    }
+
+    public BackpackTier getTier() {
+        return tier;
     }
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
+        openScreen(world, user, stack);
+        return TypedActionResult.success(stack, world.isClient());
+    }
 
-        // فتح الشاشة على السيرفر فقط (Server-side)
+    // فتح شاشة الحقيبة (سواء كانت في اليد أو في خانة الظهر)
+    public void openScreen(World world, PlayerEntity user, ItemStack stack) {
         if (!world.isClient) {
-            // تشغيل صوت لطيف كأنك تفتح حقيبة جلدية
             world.playSound(
                     null,
                     user.getX(),
@@ -62,10 +73,9 @@ public class BackpackItem extends Item {
 
                 @Override
                 public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-                    SimpleInventory inventory = new SimpleInventory(INVENTORY_SIZE) {
+                    SimpleInventory inventory = new SimpleInventory(tier.getSlots()) {
                         @Override
                         public boolean isValid(int slot, ItemStack insertStack) {
-                            // منع وضع حقيبة داخل حقيبة أخرى لتجنب المشاكل والتكرار (Dupes)
                             return !(insertStack.getItem() instanceof BackpackItem);
                         }
 
@@ -82,15 +92,18 @@ public class BackpackItem extends Item {
                         }
                     };
 
-                    // تحميل الأغراض المخزنة سابقاً في الحقيبة
                     loadInventory(stack, inventory);
 
-                    // استخدام حاوية الـ 54 خانة المدمجة في ماينكرافت (Double Chest)
-                    return new GenericContainerScreenHandler(ScreenHandlerType.GENERIC_9X6, syncId, playerInventory, inventory, 6) {
+                    return new GenericContainerScreenHandler(tier.getScreenHandlerType(), syncId, playerInventory, inventory, tier.getRows()) {
                         @Override
                         public boolean canUse(PlayerEntity player) {
-                            // إغلاق الشاشة تلقائياً إذا رمى اللاعب الحقيبة أو غيّر مكانها من يده
-                            return player.getMainHandStack() == stack || player.getOffHandStack() == stack;
+                            // الشاشة تظل مفتوحة طالما أن الحقيبة في يد اللاعب أو في خانة الظهر المخصصة
+                            boolean isHeld = player.getMainHandStack() == stack || player.getOffHandStack() == stack;
+                            boolean isWorn = false;
+                            if (player instanceof BackpackHolder holder) {
+                                isWorn = holder.backpackmod$getBackpackInventory().getStack(0) == stack;
+                            }
+                            return isHeld || isWorn;
                         }
 
                         @Override
@@ -98,8 +111,7 @@ public class BackpackItem extends Item {
                             Slot slot = this.slots.get(index);
                             if (slot != null && slot.hasStack()) {
                                 ItemStack slotStack = slot.getStack();
-                                // منع النقل السريع (Shift+Click) للحقيبة داخل نفسها
-                                if (slotStack.getItem() instanceof BackpackItem && index >= INVENTORY_SIZE) {
+                                if (slotStack.getItem() instanceof BackpackItem && index >= tier.getSlots()) {
                                     return ItemStack.EMPTY;
                                 }
                             }
@@ -109,12 +121,85 @@ public class BackpackItem extends Item {
                 }
             });
         }
-
-        return TypedActionResult.success(stack, world.isClient());
     }
 
-    // حفظ الأغراض داخل الـ NBT للـ ItemStack
-    private static void saveInventory(ItemStack stack, Inventory inventory) {
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        if (world.isClient || !(entity instanceof PlayerEntity player)) {
+            return;
+        }
+
+        if (player.age % 20 != 0) {
+            return;
+        }
+
+        SimpleInventory inv = getInventory(stack);
+        boolean hasMagnet = false;
+        boolean hasAutoFeed = false;
+
+        for (int i = 0; i < inv.size(); i++) {
+            ItemStack item = inv.getStack(i);
+            if (item.getItem() instanceof MagnetUpgradeItem) {
+                hasMagnet = true;
+            } else if (item.getItem() instanceof AutoFeedUpgradeItem) {
+                hasAutoFeed = true;
+            }
+        }
+
+        if (hasMagnet) {
+            Box box = player.getBoundingBox().expand(6.0);
+            List<ItemEntity> nearbyItems = world.getEntitiesByClass(
+                    ItemEntity.class,
+                    box,
+                    itemEntity -> itemEntity.isAlive() && !itemEntity.cannotPickup()
+            );
+
+            for (ItemEntity itemEntity : nearbyItems) {
+                Vec3d target = player.getPos().add(0, 0.75, 0);
+                Vec3d motion = target.subtract(itemEntity.getPos()).normalize().multiply(0.28);
+                itemEntity.setVelocity(motion);
+                itemEntity.velocityModified = true;
+            }
+        }
+
+        if (hasAutoFeed && player.getHungerManager().getFoodLevel() <= 14) {
+            for (int i = 0; i < inv.size(); i++) {
+                ItemStack foodStack = inv.getStack(i);
+                if (foodStack.isFood()) {
+                    FoodComponent food = foodStack.getItem().getFoodComponent();
+                    if (food != null) {
+                        player.getHungerManager().eat(foodStack.getItem(), foodStack);
+                        world.playSound(
+                                null,
+                                player.getX(),
+                                player.getY(),
+                                player.getZ(),
+                                SoundEvents.ENTITY_GENERIC_EAT,
+                                SoundCategory.PLAYERS,
+                                0.5F,
+                                1.0F
+                        );
+                        foodStack.decrement(1);
+                        inv.setStack(i, foodStack);
+                        saveInventory(stack, inv);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public static SimpleInventory getInventory(ItemStack stack) {
+        int slots = 54;
+        if (stack.getItem() instanceof BackpackItem backpackItem) {
+            slots = backpackItem.getTier().getSlots();
+        }
+        SimpleInventory inv = new SimpleInventory(slots);
+        loadInventory(stack, inv);
+        return inv;
+    }
+
+    public static void saveInventory(ItemStack stack, Inventory inventory) {
         NbtCompound nbt = stack.getOrCreateNbt();
         NbtList list = new NbtList();
 
@@ -131,8 +216,7 @@ public class BackpackItem extends Item {
         nbt.put(NBT_KEY, list);
     }
 
-    // استرجاع الأغراض من الـ NBT للـ ItemStack
-    private static void loadInventory(ItemStack stack, Inventory inventory) {
+    public static void loadInventory(ItemStack stack, Inventory inventory) {
         if (stack.hasNbt() && stack.getNbt().contains(NBT_KEY, NbtElement.LIST_TYPE)) {
             NbtList list = stack.getNbt().getList(NBT_KEY, NbtElement.COMPOUND_TYPE);
 
@@ -154,9 +238,14 @@ public class BackpackItem extends Item {
             filledSlots = list.size();
         }
 
-        tooltip.add(Text.translatable("item.backpackmod.backpack.slots", filledSlots, INVENTORY_SIZE).formatted(Formatting.GRAY));
-        tooltip.add(Text.translatable("item.backpackmod.backpack.desc").formatted(Formatting.GOLD));
+        tooltip.add(Text.translatable("item.backpackmod." + tier.getName() + ".tier").formatted(Formatting.GOLD));
+        tooltip.add(Text.translatable("item.backpackmod.backpack.slots", filledSlots, tier.getSlots()).formatted(Formatting.GRAY));
+        tooltip.add(Text.translatable("item.backpackmod.backpack.desc").formatted(Formatting.YELLOW));
+
+        if (tier.isFireproof()) {
+            tooltip.add(Text.translatable("item.backpackmod.fireproof.desc").formatted(Formatting.RED));
+        }
+
         super.appendTooltip(stack, world, tooltip, context);
     }
 }
-

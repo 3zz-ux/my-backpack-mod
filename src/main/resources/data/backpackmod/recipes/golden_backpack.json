@@ -1,0 +1,21 @@
+{
+  "type": "backpackmod:backpack_upgrade",
+  "pattern": [
+    " G ",
+    "GBG",
+    " G "
+  ],
+  "key": {
+    "B": {
+      "item": "backpackmod:iron_backpack"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "item": "backpackmod:golden_backpack",
+    "count": 1
+  }
+}
+
