@@ -2,6 +2,7 @@ package com.backpackmod.mixin;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PickaxeItem;
@@ -45,19 +46,57 @@ public abstract class ServerPlayerInteractionManagerMixin {
         ItemStack heldItem = player.getMainHandStack();
         BlockState originalState = world.getBlockState(pos);
 
-        // 1. أي فأس + شفت + خشب = كسر الشجرة فقط إذا كانت شجرة طبيعية بأوراقها (حماية لبيوت الخشب)
+        // 1. أي فأس + شفت + خشب = كسر الشجرة بالكامل فقط إذا كانت شجرة طبيعية بأوراقها (حماية لبيوت الخشب)
         if (heldItem.getItem() instanceof AxeItem && originalState.isIn(BlockTags.LOGS)) {
             if (isNaturalTree(pos)) {
                 chainBreakBlocks(pos, originalState.getBlock(), 128, true);
             }
         }
-        // 2. أي بيكاكس + شفت + أور (Ore) = كسر عرق الأورات المتصل بالكامل
-        else if (heldItem.getItem() instanceof PickaxeItem && originalState.isIn(BlockTags.ORES)) {
+        // 2. أي بيكاكس + شفت + أور = كسر عرق الأورات المتصل بالكامل
+        else if (heldItem.getItem() instanceof PickaxeItem && isOreBlock(originalState)) {
             chainBreakBlocks(pos, originalState.getBlock(), 64, false);
         }
     }
 
-    // فحص ذكي: التأكد أن الخشب تابع لشجرة حقيقية بوجود أوراق شجر (Leaves) حوله، لحماية بيوت اللاعب الخشبية من التكسير بالخطأ
+    // فحص لمعرفة إذا كانت البلوكة من أنواع الأورات (فحم، حديد، ألماس، ذهب، إلخ)
+    @Unique
+    private static boolean isOreBlock(BlockState state) {
+        return state.isIn(BlockTags.COAL_ORES)
+                || state.isIn(BlockTags.IRON_ORES)
+                || state.isIn(BlockTags.COPPER_ORES)
+                || state.isIn(BlockTags.GOLD_ORES)
+                || state.isIn(BlockTags.REDSTONE_ORES)
+                || state.isIn(BlockTags.LAPIS_ORES)
+                || state.isIn(BlockTags.DIAMOND_ORES)
+                || state.isIn(BlockTags.EMERALD_ORES)
+                || state.isOf(Blocks.NETHER_QUARTZ_ORE)
+                || state.isOf(Blocks.NETHER_GOLD_ORE)
+                || state.isOf(Blocks.ANCIENT_DEBRIS);
+    }
+
+    // مطابقة الأور مع النسخة العادية والديب سليت لنفس العرق
+    @Unique
+    private static boolean isMatchingOre(BlockState state, Block target) {
+        if (state.isOf(target)) return true;
+        if (target == Blocks.DIAMOND_ORE && state.isOf(Blocks.DEEPSLATE_DIAMOND_ORE)) return true;
+        if (target == Blocks.DEEPSLATE_DIAMOND_ORE && state.isOf(Blocks.DIAMOND_ORE)) return true;
+        if (target == Blocks.IRON_ORE && state.isOf(Blocks.DEEPSLATE_IRON_ORE)) return true;
+        if (target == Blocks.DEEPSLATE_IRON_ORE && state.isOf(Blocks.IRON_ORE)) return true;
+        if (target == Blocks.COAL_ORE && state.isOf(Blocks.DEEPSLATE_COAL_ORE)) return true;
+        if (target == Blocks.DEEPSLATE_COAL_ORE && state.isOf(Blocks.COAL_ORE)) return true;
+        if (target == Blocks.GOLD_ORE && state.isOf(Blocks.DEEPSLATE_GOLD_ORE)) return true;
+        if (target == Blocks.DEEPSLATE_GOLD_ORE && state.isOf(Blocks.GOLD_ORE)) return true;
+        if (target == Blocks.COPPER_ORE && state.isOf(Blocks.DEEPSLATE_COPPER_ORE)) return true;
+        if (target == Blocks.DEEPSLATE_COPPER_ORE && state.isOf(Blocks.COPPER_ORE)) return true;
+        if (target == Blocks.REDSTONE_ORE && state.isOf(Blocks.DEEPSLATE_REDSTONE_ORE)) return true;
+        if (target == Blocks.DEEPSLATE_REDSTONE_ORE && state.isOf(Blocks.REDSTONE_ORE)) return true;
+        if (target == Blocks.LAPIS_ORE && state.isOf(Blocks.DEEPSLATE_LAPIS_ORE)) return true;
+        if (target == Blocks.DEEPSLATE_LAPIS_ORE && state.isOf(Blocks.LAPIS_ORE)) return true;
+        if (target == Blocks.EMERALD_ORE && state.isOf(Blocks.DEEPSLATE_EMERALD_ORE)) return true;
+        if (target == Blocks.DEEPSLATE_EMERALD_ORE && state.isOf(Blocks.EMERALD_ORE)) return true;
+        return false;
+    }
+
     @Unique
     private boolean isNaturalTree(BlockPos startPos) {
         for (int dy = 0; dy <= 30; dy++) {
@@ -71,12 +110,12 @@ public abstract class ServerPlayerInteractionManagerMixin {
             for (int dx = -3; dx <= 3; dx++) {
                 for (int dz = -3; dz <= 3; dz++) {
                     if (world.getBlockState(checkPos.add(dx, 0, dz)).isIn(BlockTags.LEAVES)) {
-                        return true; // وجدت أوراق شجر: هذه شجرة طبيعية!
+                        return true;
                     }
                 }
             }
         }
-        return false; // لا توجد أوراق: هذا بيت خشب أو بناء ولن يتم تكسيره!
+        return false;
     }
 
     @Unique
@@ -102,7 +141,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
                             BlockPos neighbor = current.add(dx, dy, dz);
                             if (visited.add(neighbor)) {
                                 BlockState state = world.getBlockState(neighbor);
-                                boolean matches = isTree ? state.isIn(BlockTags.LOGS) : (state.isOf(targetBlock) || state.isIn(BlockTags.ORES));
+                                boolean matches = isTree ? state.isIn(BlockTags.LOGS) : isMatchingOre(state, targetBlock);
 
                                 if (matches) {
                                     queue.add(neighbor);
