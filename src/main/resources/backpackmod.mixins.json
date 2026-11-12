@@ -3,6 +3,7 @@
   "package": "com.backpackmod.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AbstractCookingRecipeMixin",
     "PlayerEntityMixin",
     "PlayerScreenHandlerMixin",
     "ScreenHandlerMixin"
