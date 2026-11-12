@@ -1,5 +1,6 @@
 package com.backpackmod;
 
+import com.backpackmod.block.InstantFarmBlock;
 import com.backpackmod.block.InstantHouseBlock;
 import com.backpackmod.item.*;
 import com.backpackmod.recipe.BackpackUpgradeRecipe;
@@ -63,7 +64,15 @@ public class BackpackMod implements ModInitializer {
     public static final Block MINI_CASTLE_BLOCK = registerBlock("mini_castle",
             new InstantHouseBlock(InstantHouseBlock.HouseType.CASTLE, AbstractBlock.Settings.copy(Blocks.DEEPSLATE_BRICKS)));
 
-    // 5. مسجل وصفات الترقية للحقائب
+    // 5. تسجيل بلوكات الفارمات الفورية الثلاثة (قمح، حيوانات، موب تراب)
+    public static final Block CROP_FARM_BLOCK = registerBlock("crop_farm",
+            new InstantFarmBlock(InstantFarmBlock.FarmType.CROPS, AbstractBlock.Settings.copy(Blocks.FARMLAND)));
+    public static final Block ANIMAL_FARM_BLOCK = registerBlock("animal_farm",
+            new InstantFarmBlock(InstantFarmBlock.FarmType.ANIMALS, AbstractBlock.Settings.copy(Blocks.HAY_BLOCK)));
+    public static final Block MOB_TRAP_BLOCK = registerBlock("mob_trap",
+            new InstantFarmBlock(InstantFarmBlock.FarmType.MOB_TRAP, AbstractBlock.Settings.copy(Blocks.COBBLESTONE)));
+
+    // 6. مسجل وصفات الترقية للحقائب
     public static final RecipeSerializer<BackpackUpgradeRecipe> BACKPACK_UPGRADE_SERIALIZER = Registry.register(
             Registries.RECIPE_SERIALIZER,
             new Identifier(MOD_ID, "backpack_upgrade"),
@@ -82,7 +91,7 @@ public class BackpackMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Backpack & Survival Expansion Mod initialized successfully!");
+        LOGGER.info("Backpack, Tools & Instant Automation Mod initialized!");
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
             entries.add(WOODEN_BACKPACK);
@@ -106,6 +115,10 @@ public class BackpackMod implements ModInitializer {
             entries.add(WOODEN_HOUSE_BLOCK);
             entries.add(STONE_HOUSE_BLOCK);
             entries.add(MINI_CASTLE_BLOCK);
+
+            entries.add(CROP_FARM_BLOCK);
+            entries.add(ANIMAL_FARM_BLOCK);
+            entries.add(MOB_TRAP_BLOCK);
         });
     }
 }

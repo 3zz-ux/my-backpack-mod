@@ -21,5 +21,8 @@
     "item.backpackmod.hammer.unbreakable":  "Unbreakable (Infinite Durability)!",
     "block.backpackmod.wooden_house.desc":  "Places an instant starter wooden house!",
     "block.backpackmod.stone_house.desc":  "Places an instant fortified stone house!",
-    "block.backpackmod.mini_castle.desc":  "Places an instant mini castle fortress!"
+    "block.backpackmod.mini_castle.desc":  "Places an instant mini castle fortress!",
+    "block.backpackmod.crop_farm.desc":  "Instantly clears area and builds an automated wheat crop farm!",
+    "block.backpackmod.animal_farm.desc":  "Instantly builds a fully equipped animal barn with animals!",
+    "block.backpackmod.mob_trap.desc":  "Instantly constructs a mob drop \u0026 XP farming tower!"
 }

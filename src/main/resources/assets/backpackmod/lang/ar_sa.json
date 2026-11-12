@@ -21,5 +21,8 @@
     "item.backpackmod.hammer.unbreakable":  "متانة لانهائية (لا تنكسر أبداً)!",
     "block.backpackmod.wooden_house.desc":  "تبني كوخاً خشبياً فورياً مجهزاً بالكامل بمجرد وضعها!",
     "block.backpackmod.stone_house.desc":  "تبني منزلاً حجرياً كبيراً ومجهزاً بالكامل!",
-    "block.backpackmod.mini_castle.desc":  "تبني قلعة حجرية مصفحة مع شرفات!"
+    "block.backpackmod.mini_castle.desc":  "تبني قلعة حجرية مصفحة مع شرفات!",
+    "block.backpackmod.crop_farm.desc":  "تمسح العوائق وتبني مزرعة قمح أوتوماتيكية مسقية ومحروثة فوراً!",
+    "block.backpackmod.animal_farm.desc":  "تبني حظيرة حيوانات مجهزة بأعلاف وبقر وخراف فوراً!",
+    "block.backpackmod.mob_trap.desc":  "تبني برج ومصيدة وحوش أوتوماتيكية مع هوبرات لجمع الموارد واللفل!"
 }
