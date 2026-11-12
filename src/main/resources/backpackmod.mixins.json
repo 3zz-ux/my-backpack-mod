@@ -6,7 +6,8 @@
     "AbstractCookingRecipeMixin",
     "PlayerEntityMixin",
     "PlayerScreenHandlerMixin",
-    "ScreenHandlerMixin"
+    "ScreenHandlerMixin",
+    "ServerPlayerInteractionManagerMixin"
   ],
   "client": [
   ],
