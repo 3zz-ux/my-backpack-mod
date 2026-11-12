@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "PlayerEntityMixin",
-    "PlayerScreenHandlerMixin"
+    "PlayerScreenHandlerMixin",
+    "ScreenHandlerMixin"
   ],
   "client": [
   ],
@@ -12,4 +13,3 @@
     "defaultRequire": 1
   }
 }
-

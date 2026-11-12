@@ -83,11 +83,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Backpack
         if (!this.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
             ItemStack stack = this.backpackmod_inventory.getStack(0);
             if (!stack.isEmpty()) {
-                this.dropItem(stack, true, false);
+                this.dropStack(stack);
                 this.backpackmod_inventory.setStack(0, ItemStack.EMPTY);
                 backpackmod$syncBackpack(ItemStack.EMPTY);
             }
         }
     }
 }
-
