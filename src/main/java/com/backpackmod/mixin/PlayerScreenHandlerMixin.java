@@ -21,8 +21,8 @@ public abstract class PlayerScreenHandlerMixin extends ScreenHandler {
     @Inject(method = "<init>(Lnet/minecraft/entity/player/PlayerInventory;ZLnet/minecraft/entity/player/PlayerEntity;)V", at = @At("RETURN"))
     private void addBackpackSlot(PlayerInventory inventory, boolean onServer, PlayerEntity owner, CallbackInfo ci) {
         if (owner instanceof BackpackHolder holder) {
-            // إضافة خانة الحقيبة تحت خانة اليد الثانية (Offhand) مباشرة (x = 77, y = 80)
-            this.addSlot(new BackpackSlot(holder.backpackmod$getBackpackInventory(), 0, 77, 80, owner));
+            // إضافة خانة الحقيبة فوق خانة اليد الثانية (Offhand) مباشرة بمحاذاة الدرع (x = 77, y = 44)
+            this.addSlot(new BackpackSlot(holder.backpackmod$getBackpackInventory(), 0, 77, 44, owner));
         }
     }
 }
