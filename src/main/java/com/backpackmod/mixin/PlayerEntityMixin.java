@@ -43,14 +43,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Backpack
         this.dataTracker.startTracking(BACKPACK_TRACKED, ItemStack.EMPTY);
     }
 
-    @Inject(method = "onTrackedDataSet", at = @At("RETURN"))
-    private void onBackpackTrackedDataSet(TrackedData<?> data, CallbackInfo ci) {
-        if (BACKPACK_TRACKED.equals(data) && this.getWorld().isClient) {
-            ItemStack stack = this.dataTracker.get(BACKPACK_TRACKED);
-            this.backpackmod_inventory.setStack(0, stack);
-        }
-    }
-
     @Override
     public SimpleInventory backpackmod$getBackpackInventory() {
         return this.backpackmod_inventory;

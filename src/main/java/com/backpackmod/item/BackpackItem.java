@@ -7,7 +7,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.inventory.StackReference;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -21,7 +20,6 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.ClickType;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -49,25 +47,6 @@ public class BackpackItem extends Item {
         ItemStack stack = user.getStackInHand(hand);
         openScreen(world, user, stack);
         return TypedActionResult.success(stack, world.isClient());
-    }
-
-    // دعم الضغط كليك يمين على الحقيبة مباشرة داخل الإنفتوري لمنع تفريغ الموارد وفتح واجهة الحقيبة فوراً
-    @Override
-    public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
-        if (clickType == ClickType.SECONDARY && otherStack.isEmpty()) {
-            openScreen(player.getWorld(), player, stack);
-            return true;
-        }
-        return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
-    }
-
-    @Override
-    public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
-        if (clickType == ClickType.SECONDARY) {
-            openScreen(player.getWorld(), player, stack);
-            return true;
-        }
-        return super.onStackClicked(stack, slot, clickType, player);
     }
 
     // فتح شاشة الحقيبة (سواء كانت في اليد، أو في خانة الظهر، أو في الإنفتوري)
