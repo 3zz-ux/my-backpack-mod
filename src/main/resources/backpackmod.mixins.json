@@ -7,14 +7,12 @@
     "ExperienceOrbEntityMixin",
     "ItemMixin",
     "ItemStackMixin",
-    "LootableContainerBlockEntityMixin",
     "PacketByteBufMixin",
     "PlayerEntityMixin",
     "PlayerInventoryMixin",
     "PlayerScreenHandlerMixin",
     "ScreenHandlerMixin",
     "ServerPlayerInteractionManagerMixin",
-    "SimpleInventoryMixin",
     "SlotMixin"
   ],
   "client": [
