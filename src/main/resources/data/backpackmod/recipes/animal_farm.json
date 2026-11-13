@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WWW",
+    "FHF",
+    "FFF"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:wheat"
+    },
+    "F": {
+      "tag": "minecraft:fences"
+    },
+    "H": {
+      "item": "minecraft:hay_block"
+    }
+  },
+  "result": {
+    "item": "backpackmod:animal_farm",
+    "count": 1
+  }
+}

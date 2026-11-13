@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP",
+    "PBP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "B": {
+      "tag": "minecraft:beds"
+    }
+  },
+  "result": {
+    "item": "backpackmod:wooden_house",
+    "count": 1
+  }
+}

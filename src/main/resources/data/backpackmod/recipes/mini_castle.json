@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DDD",
+    "DBD",
+    "DDD"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:deepslate_bricks"
+    },
+    "B": {
+      "tag": "minecraft:beds"
+    }
+  },
+  "result": {
+    "item": "backpackmod:mini_castle",
+    "count": 1
+  }
+}

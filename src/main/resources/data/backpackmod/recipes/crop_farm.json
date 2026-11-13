@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WWW",
+    "DBD",
+    "DDD"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:wheat_seeds"
+    },
+    "B": {
+      "item": "minecraft:water_bucket"
+    },
+    "D": {
+      "item": "minecraft:dirt"
+    }
+  },
+  "result": {
+    "item": "backpackmod:crop_farm",
+    "count": 1
+  }
+}
