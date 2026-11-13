@@ -1,9 +1,9 @@
 package com.backpackmod.mixin;
 
 import com.backpackmod.item.BackpackItem;
-import com.backpackmod.item.BackpackSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -28,19 +28,22 @@ public abstract class ScreenHandlerMixin {
     private void onBackpackSlotRightClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
         if (slotIndex >= 0 && slotIndex < this.slots.size()) {
             Slot slot = this.slots.get(slotIndex);
-            if (slot instanceof BackpackSlot) {
-                // عند الضغط كليك يمين واليد فارغة، تفتح الحقيبة مباشرة
-                if (button == 1 && actionType == SlotActionType.PICKUP && this.getCursorStack().isEmpty()) {
-                    if (slot.hasStack()) {
-                        ItemStack stack = slot.getStack();
-                        if (stack.getItem() instanceof BackpackItem backpackItem) {
-                            backpackItem.openScreen(player.getWorld(), player, stack);
-                            ci.cancel();
-                        }
+            if (slot != null && slot.hasStack()) {
+                ItemStack stack = slot.getStack();
+                if (stack.getItem() instanceof BackpackItem backpackItem) {
+                    // إذا كان اللاعب داخل شاشة حقيبة بالفعل، نتجنب التداخل
+                    if ((Object) this instanceof GenericContainerScreenHandler) {
+                        return;
+                    }
+
+                    // عند الضغط كليك يمين والماوس فارغ على أي خانة تحتوي حقيبة (سواء خانة الظهر أو أي خانة إنفتوري)
+                    // نقوم بفتح الحقيبة فوراً ونلغي الحدث (cancel) لمنع أي تفريغ أو نقل لمحتويات الحقيبة إلى إنفتوري اللاعب
+                    if (button == 1 && (actionType == SlotActionType.PICKUP || actionType == SlotActionType.QUICK_MOVE) && this.getCursorStack().isEmpty()) {
+                        backpackItem.openScreen(player.getWorld(), player, stack);
+                        ci.cancel();
                     }
                 }
             }
         }
     }
 }
-

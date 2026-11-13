@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.inventory.StackReference;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,6 +21,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.ClickType;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -49,7 +51,26 @@ public class BackpackItem extends Item {
         return TypedActionResult.success(stack, world.isClient());
     }
 
-    // فتح شاشة الحقيبة (سواء كانت في اليد أو في خانة الظهر)
+    // دعم الضغط كليك يمين على الحقيبة مباشرة داخل الإنفتوري لمنع تفريغ الموارد وفتح واجهة الحقيبة فوراً
+    @Override
+    public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
+        if (clickType == ClickType.SECONDARY && otherStack.isEmpty()) {
+            openScreen(player.getWorld(), player, stack);
+            return true;
+        }
+        return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
+    }
+
+    @Override
+    public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
+        if (clickType == ClickType.SECONDARY) {
+            openScreen(player.getWorld(), player, stack);
+            return true;
+        }
+        return super.onStackClicked(stack, slot, clickType, player);
+    }
+
+    // فتح شاشة الحقيبة (سواء كانت في اليد، أو في خانة الظهر، أو في الإنفتوري)
     public void openScreen(World world, PlayerEntity user, ItemStack stack) {
         if (!world.isClient) {
             world.playSound(
@@ -95,13 +116,14 @@ public class BackpackItem extends Item {
                     return new GenericContainerScreenHandler(tier.getScreenHandlerType(), syncId, playerInventory, inventory, tier.getRows()) {
                         @Override
                         public boolean canUse(PlayerEntity player) {
-                            // الشاشة تظل مفتوحة طالما أن الحقيبة في يد اللاعب أو في خانة الظهر المخصصة
+                            // الشاشة تظل مفتوحة طالما أن الحقيبة في يد اللاعب أو في خانة الظهر المخصصة أو في الإنفتوري
                             boolean isHeld = player.getMainHandStack() == stack || player.getOffHandStack() == stack;
                             boolean isWorn = false;
                             if (player instanceof BackpackHolder holder) {
                                 isWorn = holder.backpackmod$getBackpackInventory().getStack(0) == stack;
                             }
-                            return isHeld || isWorn;
+                            boolean isInInventory = player.getInventory().contains(stack);
+                            return isHeld || isWorn || isInInventory;
                         }
 
                         @Override
@@ -127,12 +149,12 @@ public class BackpackItem extends Item {
             return;
         }
 
-        // فحص كل نصف ثانية (10 ticks) للاستجابة السريعة
-        if (player.age % 10 != 0) {
+        // فحص كل تيكين (2 ticks) لسرعة استجابة المغناطيس وسحب الموارد فوراً إلى داخل الحقيبة
+        if (player.age % 2 != 0) {
             return;
         }
 
-        // إذا كان اللاعب فاتح شاشة الحقيبة حالياً، ننتظر حتى يقفلها لمنع تداخل سحب الموارد أثناء ترتيبها
+        // إذا كان اللاعب فاتح شاشة الحقيبة حالياً، ننتظر حتى يقفلها لمنع تداخل ترتيب الموارد
         if (player.currentScreenHandler instanceof GenericContainerScreenHandler) {
             return;
         }
@@ -150,7 +172,7 @@ public class BackpackItem extends Item {
             }
         }
 
-        // 1. ميزة المغناطيس: سحب الموارد مباشرة إلى داخل خانات الحقيبة (وليس إلى حقيبة اللاعب!)
+        // 1. ميزة المغناطيس: سحب الموارد مباشرة إلى داخل خانات الحقيبة وحفظها فيها دائماً
         if (hasMagnet) {
             Box box = player.getBoundingBox().expand(8.0);
             List<ItemEntity> nearbyItems = world.getEntitiesByClass(
@@ -170,7 +192,7 @@ public class BackpackItem extends Item {
                 int originalCount = groundStack.getCount();
                 ItemStack remaining = insertIntoInventory(inv, groundStack);
 
-                // إذا تم تخزين أي كمية داخل الحقيبة مباشرة
+                // تم تخزين المورد داخل الحقيبة بنجاح
                 if (remaining.getCount() < originalCount) {
                     inventoryChanged = true;
                     if (remaining.isEmpty()) {
@@ -196,8 +218,10 @@ public class BackpackItem extends Item {
                 if (player instanceof BackpackHolder holder) {
                     if (holder.backpackmod$getBackpackInventory().getStack(0) == stack) {
                         holder.backpackmod$syncBackpack(stack);
+                        holder.backpackmod$getBackpackInventory().markDirty();
                     }
                 }
+                player.getInventory().markDirty();
             }
         }
 

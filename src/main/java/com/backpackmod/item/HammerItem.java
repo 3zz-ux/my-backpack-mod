@@ -31,19 +31,32 @@ public class HammerItem extends PickaxeItem {
         return size;
     }
 
-    // متانة لانهائية: الأداة لا تنكسر نهائياً
+    // السماح بتطوير الهامر في طاولة التطوير (Enchanting Table) والأنفيل (Anvil) كالبيكاكس تماماً
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getEnchantability() {
+        // قابلية تطوير عالية للحصول على أقوى التطويرات (Efficiency, Fortune, Silk Touch, إلخ)
+        return Math.max(super.getEnchantability(), 15);
+    }
+
+    // متانة لانهائية مع إمكانية قبول تطويرات البيكاكس
     @Override
     public boolean isDamageable() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isItemBarVisible(ItemStack stack) {
-        return false; // إخفاء شريط الضرر لأنها لا تنكسر
+        return false; // إخفاء شريط الضرر نهائياً لأن الهامر لا ينكسر
     }
 
     @Override
     public boolean postMine(ItemStack stack, World world, BlockState state, BlockPos pos, LivingEntity miner) {
+        stack.setDamage(0); // تصفير أي ضرر فوراً للحفاظ على المتانة الأبدية
         if (!world.isClient && miner instanceof ServerPlayerEntity player) {
             if (this.isSuitableFor(state) && !IS_MINING.get()) {
                 mineArea(world, player, pos, stack);
@@ -54,7 +67,8 @@ public class HammerItem extends PickaxeItem {
 
     @Override
     public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        return true; // لا تتضرر عند ضرب الوحوش أيضاً
+        stack.setDamage(0); // تصفير أي ضرر عند ضرب الوحوش
+        return true;
     }
 
     private void mineArea(World world, ServerPlayerEntity player, BlockPos centerPos, ItemStack hammerStack) {
