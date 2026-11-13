@@ -32,6 +32,9 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Unique
     private static final ThreadLocal<Boolean> IS_CHAIN_BREAKING = ThreadLocal.withInitial(() -> false);
 
+    @Unique
+    private static final ThreadLocal<Integer> SAVED_TOOL_DAMAGE = ThreadLocal.withInitial(() -> -1);
+
     @Inject(method = "tryBreakBlock", at = @At("HEAD"))
     private void onTryBreakBlock(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (IS_CHAIN_BREAKING.get()) {
@@ -46,6 +49,12 @@ public abstract class ServerPlayerInteractionManagerMixin {
         ItemStack heldItem = player.getMainHandStack();
         BlockState originalState = world.getBlockState(pos);
 
+        // حفظ متانة الأداة لمنع انكسارها أو استهلاك Durability عند التكسير بالشفت
+        if ((heldItem.getItem() instanceof AxeItem && originalState.isIn(BlockTags.LOGS))
+                || (heldItem.getItem() instanceof PickaxeItem && isOreBlock(originalState))) {
+            SAVED_TOOL_DAMAGE.set(heldItem.getDamage());
+        }
+
         // 1. أي فأس + شفت + خشب = كسر الشجرة بالكامل فقط إذا كانت شجرة طبيعية بأوراقها (حماية لبيوت الخشب)
         if (heldItem.getItem() instanceof AxeItem && originalState.isIn(BlockTags.LOGS)) {
             if (isNaturalTree(pos)) {
@@ -55,6 +64,21 @@ public abstract class ServerPlayerInteractionManagerMixin {
         // 2. أي بيكاكس + شفت + أور = كسر عرق الأورات المتصل بالكامل
         else if (heldItem.getItem() instanceof PickaxeItem && isOreBlock(originalState)) {
             chainBreakBlocks(pos, originalState.getBlock(), 64, false);
+        }
+    }
+
+    @Inject(method = "tryBreakBlock", at = @At("TAIL"))
+    private void onTryBreakBlockTail(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
+        if (IS_CHAIN_BREAKING.get()) {
+            return;
+        }
+
+        int saved = SAVED_TOOL_DAMAGE.get();
+        if (saved >= 0) {
+            if (!player.getMainHandStack().isEmpty()) {
+                player.getMainHandStack().setDamage(saved);
+            }
+            SAVED_TOOL_DAMAGE.set(-1);
         }
     }
 
@@ -147,6 +171,13 @@ public abstract class ServerPlayerInteractionManagerMixin {
                                     queue.add(neighbor);
                                     ((ServerPlayerInteractionManager)(Object)this).tryBreakBlock(neighbor);
                                     brokenCount++;
+
+                                    // الحفاظ الدائم على متانة الأداة عند كسر كل بلوكة بالسلسلة
+                                    int saved = SAVED_TOOL_DAMAGE.get();
+                                    if (saved >= 0 && !player.getMainHandStack().isEmpty()) {
+                                        player.getMainHandStack().setDamage(saved);
+                                    }
+
                                     if (player.getMainHandStack().isEmpty()) {
                                         return;
                                     }
