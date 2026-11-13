@@ -63,7 +63,7 @@ public class BackpackMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Backpack, Ultimate Tools & 5000 Stacks Mod initialized!");
+        LOGGER.info("Backpack, Ultimate Tools & 3x XP Mod initialized!");
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
             entries.add(WOODEN_BACKPACK);

@@ -5,15 +5,10 @@
   "mixins": [
     "AbstractCookingRecipeMixin",
     "ExperienceOrbEntityMixin",
-    "ItemMixin",
-    "ItemStackMixin",
-    "PacketByteBufMixin",
     "PlayerEntityMixin",
-    "PlayerInventoryMixin",
     "PlayerScreenHandlerMixin",
     "ScreenHandlerMixin",
-    "ServerPlayerInteractionManagerMixin",
-    "SlotMixin"
+    "ServerPlayerInteractionManagerMixin"
   ],
   "client": [
   ],
