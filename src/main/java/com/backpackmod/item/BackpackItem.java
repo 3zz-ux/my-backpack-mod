@@ -16,7 +16,6 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -25,7 +24,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,7 +127,13 @@ public class BackpackItem extends Item {
             return;
         }
 
-        if (player.age % 20 != 0) {
+        // فحص كل نصف ثانية (10 ticks) للاستجابة السريعة
+        if (player.age % 10 != 0) {
+            return;
+        }
+
+        // إذا كان اللاعب فاتح شاشة الحقيبة حالياً، ننتظر حتى يقفلها لمنع تداخل سحب الموارد أثناء ترتيبها
+        if (player.currentScreenHandler instanceof GenericContainerScreenHandler) {
             return;
         }
 
@@ -146,22 +150,58 @@ public class BackpackItem extends Item {
             }
         }
 
+        // 1. ميزة المغناطيس: سحب الموارد مباشرة إلى داخل خانات الحقيبة (وليس إلى حقيبة اللاعب!)
         if (hasMagnet) {
-            Box box = player.getBoundingBox().expand(6.0);
+            Box box = player.getBoundingBox().expand(8.0);
             List<ItemEntity> nearbyItems = world.getEntitiesByClass(
                     ItemEntity.class,
                     box,
                     itemEntity -> itemEntity.isAlive() && !itemEntity.cannotPickup()
             );
 
+            boolean inventoryChanged = false;
+
             for (ItemEntity itemEntity : nearbyItems) {
-                Vec3d target = player.getPos().add(0, 0.75, 0);
-                Vec3d motion = target.subtract(itemEntity.getPos()).normalize().multiply(0.28);
-                itemEntity.setVelocity(motion);
-                itemEntity.velocityModified = true;
+                ItemStack groundStack = itemEntity.getStack();
+                if (groundStack.isEmpty() || groundStack.getItem() instanceof BackpackItem) {
+                    continue;
+                }
+
+                int originalCount = groundStack.getCount();
+                ItemStack remaining = insertIntoInventory(inv, groundStack);
+
+                // إذا تم تخزين أي كمية داخل الحقيبة مباشرة
+                if (remaining.getCount() < originalCount) {
+                    inventoryChanged = true;
+                    if (remaining.isEmpty()) {
+                        itemEntity.discard();
+                    } else {
+                        itemEntity.setStack(remaining);
+                    }
+                    world.playSound(
+                            null,
+                            player.getX(),
+                            player.getY(),
+                            player.getZ(),
+                            SoundEvents.ENTITY_ITEM_PICKUP,
+                            SoundCategory.PLAYERS,
+                            0.2F,
+                            (world.random.nextFloat() - world.random.nextFloat()) * 0.2F + 1.0F
+                    );
+                }
+            }
+
+            if (inventoryChanged) {
+                saveInventory(stack, inv);
+                if (player instanceof BackpackHolder holder) {
+                    if (holder.backpackmod$getBackpackInventory().getStack(0) == stack) {
+                        holder.backpackmod$syncBackpack(stack);
+                    }
+                }
             }
         }
 
+        // 2. ميزة التغذية الذاتية: إطعام اللاعب تلقائياً من الأكل الموجود داخل الحقيبة
         if (hasAutoFeed && player.getHungerManager().getFoodLevel() <= 14) {
             for (int i = 0; i < inv.size(); i++) {
                 ItemStack foodStack = inv.getStack(i);
@@ -187,6 +227,47 @@ public class BackpackItem extends Item {
                 }
             }
         }
+    }
+
+    // دالة مساعدة لإدخال الأغراض مباشرة إلى داخل الحقيبة بذكاء (دمج بالخانات الممتلئة أولاً ثم الفارغة)
+    private static ItemStack insertIntoInventory(SimpleInventory inv, ItemStack stack) {
+        ItemStack toInsert = stack.copy();
+
+        // أولاً: محاولة الدمج مع الخانات التي تحتوي على نفس نوع المورد
+        for (int i = 0; i < inv.size(); i++) {
+            ItemStack slotStack = inv.getStack(i);
+            if (!slotStack.isEmpty() && ItemStack.canCombine(slotStack, toInsert)) {
+                int maxCount = Math.min(inv.getMaxCountPerStack(), slotStack.getMaxCount());
+                int space = maxCount - slotStack.getCount();
+                if (space > 0) {
+                    int toAdd = Math.min(space, toInsert.getCount());
+                    slotStack.increment(toAdd);
+                    toInsert.decrement(toAdd);
+                    inv.setStack(i, slotStack);
+                    if (toInsert.isEmpty()) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+            }
+        }
+
+        // ثانياً: إذا تبقى موارد، وضعها في أول خانة فارغة متاحة
+        for (int i = 0; i < inv.size(); i++) {
+            ItemStack slotStack = inv.getStack(i);
+            if (slotStack.isEmpty()) {
+                int maxCount = Math.min(inv.getMaxCountPerStack(), toInsert.getMaxCount());
+                int toAdd = Math.min(maxCount, toInsert.getCount());
+                ItemStack newSlotStack = toInsert.copy();
+                newSlotStack.setCount(toAdd);
+                inv.setStack(i, newSlotStack);
+                toInsert.decrement(toAdd);
+                if (toInsert.isEmpty()) {
+                    return ItemStack.EMPTY;
+                }
+            }
+        }
+
+        return toInsert;
     }
 
     public static SimpleInventory getInventory(ItemStack stack) {

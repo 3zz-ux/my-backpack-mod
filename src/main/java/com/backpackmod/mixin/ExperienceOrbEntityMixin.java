@@ -15,7 +15,7 @@ public abstract class ExperienceOrbEntityMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/world/World;DDDI)V", at = @At("RETURN"))
     private void onInit(World world, double x, double y, double z, int amount, CallbackInfo ci) {
-        // مضاعفة نسبة الـ XP الناتجة عن قتل الموبات وتكسير البلوكات والأورات إلى 3 أضعاف النسبة الطبيعية
-        this.amount = amount * 3;
+        // مضاعفة نسبة الـ XP الناتجة عن قتل الموبات وتكسير البلوكات والأورات إلى 6 أضعاف (مضاعفة إضافية)
+        this.amount = amount * 6;
     }
 }
