@@ -4,10 +4,18 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AbstractCookingRecipeMixin",
+    "ExperienceOrbEntityMixin",
+    "ItemMixin",
+    "ItemStackMixin",
+    "LootableContainerBlockEntityMixin",
+    "PacketByteBufMixin",
     "PlayerEntityMixin",
+    "PlayerInventoryMixin",
     "PlayerScreenHandlerMixin",
     "ScreenHandlerMixin",
-    "ServerPlayerInteractionManagerMixin"
+    "ServerPlayerInteractionManagerMixin",
+    "SimpleInventoryMixin",
+    "SlotMixin"
   ],
   "client": [
   ],

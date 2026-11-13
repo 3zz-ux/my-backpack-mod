@@ -24,19 +24,5 @@
     "item.backpackmod.diamond_hammer": "مطرقة ماسية",
     "item.backpackmod.netherite_hammer": "مطرقة نيذرايت",
     "item.backpackmod.hammer.area": "مساحة التعدين: %sx%s",
-    "item.backpackmod.hammer.unbreakable": "متانة لانهائية (لا تنكسر أبداً)!",
-    "block.backpackmod.wooden_house": "بلوكة الكوخ الخشبي الفوري",
-    "block.backpackmod.wooden_house.desc": "تبني كوخاً ريفياً فخماً ومؤثثاً بالكامل مع مدخنة!",
-    "block.backpackmod.stone_house": "بلوكة المنزل الحجري الفوري",
-    "block.backpackmod.stone_house.desc": "تبني منزلاً حجرياً كبيراً ومجهزاً بطاولة تطوير وسندان ومدخنة!",
-    "block.backpackmod.mini_castle": "بلوكة القلعة الحصينة الفورية",
-    "block.backpackmod.mini_castle.desc": "تبني قلعة مصفحة بشرفات قتالية وباب حديدي وأبراج مراقبة!",
-    "block.backpackmod.crop_farm": "بلوكة مزرعة المحاصيل المدرجة",
-    "block.backpackmod.crop_farm.desc": "تبني مزرعة أوتوماتيكية مدرجة مع مجرى ماء وهوبرات وصناديق!",
-    "block.backpackmod.animal_farm": "بلوكة حظيرة الحيوانات الفورية",
-    "block.backpackmod.animal_farm.desc": "تبني حظيرة مجهزة بأعلاف وقش وأبقار وخراف وخنازير فوراً!",
-    "block.backpackmod.mob_trap": "بلوكة برج صيد الموبات (XP Farm)",
-    "block.backpackmod.mob_trap.desc": "تبني برج ومصيدة وحوش أوتوماتيكية 22 بلوكة مع هوبرات وصناديق لجمع الإكس بي واللوت!",
-    "tooltip.backpackmod.instant_house": "ضع البلوكة على الأرض لتتحول فوراً إلى البيت!",
-    "tooltip.backpackmod.instant_farm": "ضع البلوكة على الأرض لتتحول فوراً إلى الفارم الأوتوماتيكي!"
+    "item.backpackmod.hammer.unbreakable": "متانة لانهائية (لا تنكسر أبداً)!"
 }

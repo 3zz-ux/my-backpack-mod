@@ -1,15 +1,9 @@
 package com.backpackmod;
 
-import com.backpackmod.block.InstantFarmBlock;
-import com.backpackmod.block.InstantHouseBlock;
 import com.backpackmod.item.*;
 import com.backpackmod.recipe.BackpackUpgradeRecipe;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ToolMaterials;
@@ -56,23 +50,7 @@ public class BackpackMod implements ModInitializer {
     public static final Item NETHERITE_HAMMER = registerItem("netherite_hammer",
             new HammerItem(ToolMaterials.NETHERITE, 7, 7, -3.0F, new Item.Settings().fireproof()));
 
-    // 4. تسجيل بلوكات البيوت الفورية الثلاثة
-    public static final Block WOODEN_HOUSE_BLOCK = registerBlock("wooden_house",
-            new InstantHouseBlock(InstantHouseBlock.HouseType.WOODEN, AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)));
-    public static final Block STONE_HOUSE_BLOCK = registerBlock("stone_house",
-            new InstantHouseBlock(InstantHouseBlock.HouseType.STONE, AbstractBlock.Settings.copy(Blocks.STONE_BRICKS)));
-    public static final Block MINI_CASTLE_BLOCK = registerBlock("mini_castle",
-            new InstantHouseBlock(InstantHouseBlock.HouseType.CASTLE, AbstractBlock.Settings.copy(Blocks.DEEPSLATE_BRICKS)));
-
-    // 5. تسجيل بلوكات الفارمات الفورية الثلاثة (قمح، حيوانات، موب تراب)
-    public static final Block CROP_FARM_BLOCK = registerBlock("crop_farm",
-            new InstantFarmBlock(InstantFarmBlock.FarmType.CROPS, AbstractBlock.Settings.copy(Blocks.FARMLAND)));
-    public static final Block ANIMAL_FARM_BLOCK = registerBlock("animal_farm",
-            new InstantFarmBlock(InstantFarmBlock.FarmType.ANIMALS, AbstractBlock.Settings.copy(Blocks.HAY_BLOCK)));
-    public static final Block MOB_TRAP_BLOCK = registerBlock("mob_trap",
-            new InstantFarmBlock(InstantFarmBlock.FarmType.MOB_TRAP, AbstractBlock.Settings.copy(Blocks.COBBLESTONE)));
-
-    // 6. مسجل وصفات الترقية للحقائب
+    // 4. مسجل وصفات الترقية للحقائب
     public static final RecipeSerializer<BackpackUpgradeRecipe> BACKPACK_UPGRADE_SERIALIZER = Registry.register(
             Registries.RECIPE_SERIALIZER,
             new Identifier(MOD_ID, "backpack_upgrade"),
@@ -83,15 +61,9 @@ public class BackpackMod implements ModInitializer {
         return Registry.register(Registries.ITEM, new Identifier(MOD_ID, name), item);
     }
 
-    private static Block registerBlock(String name, Block block) {
-        Registry.register(Registries.BLOCK, new Identifier(MOD_ID, name), block);
-        Registry.register(Registries.ITEM, new Identifier(MOD_ID, name), new BlockItem(block, new Item.Settings()));
-        return block;
-    }
-
     @Override
     public void onInitialize() {
-        LOGGER.info("Backpack, Tools & Instant Automation Mod initialized!");
+        LOGGER.info("Backpack, Ultimate Tools & 5000 Stacks Mod initialized!");
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
             entries.add(WOODEN_BACKPACK);
@@ -109,16 +81,6 @@ public class BackpackMod implements ModInitializer {
             entries.add(GOLDEN_HAMMER);
             entries.add(DIAMOND_HAMMER);
             entries.add(NETHERITE_HAMMER);
-        });
-
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
-            entries.add(WOODEN_HOUSE_BLOCK);
-            entries.add(STONE_HOUSE_BLOCK);
-            entries.add(MINI_CASTLE_BLOCK);
-
-            entries.add(CROP_FARM_BLOCK);
-            entries.add(ANIMAL_FARM_BLOCK);
-            entries.add(MOB_TRAP_BLOCK);
         });
     }
 }
